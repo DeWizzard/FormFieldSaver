@@ -50,3 +50,25 @@ We have the ability to ignore some controls, this can be done by its type, or by
 
    // Now controls named "checkBox1" and "textBox1" will be ignored and not saved.
    FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList(), null, ignoreControlsByName);
+## Error Handling
+When loading / saving fields, an error may occur, it is better to handle it
+* When loading settings
+   ```csharp
+   var loadSettingsResult = FormSaver.LoadFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+   if(!loadSettingsResult.Success)
+   {
+       // Perhaps the program is launched for the first time, and it does not have a save file
+       if (loadSettingsResult.FileNotFound) 
+           return;
+
+       // If the file exists, then an error occurred when working with controls, you need to prevent this.
+       MessageBox.Show("Error load Form Settings", loadSettingsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+   }
+* When save settings
+   ```csharp
+   var saveSettnigsResult = FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+   if (!saveSettnigsResult.Success)
+   {
+       // an error occurred while working with controls, you need to prevent this.
+       MessageBox.Show("Error load Form Settings", saveSettnigsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+   }

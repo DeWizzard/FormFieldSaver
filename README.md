@@ -23,10 +23,12 @@ Library for saving data on the form after closing the program
     ```csharp
     private void Form1_Load(object sender, EventArgs e)
     {
-      FormSaver.LoadFormSettings("settings.json", Controls.Cast<Control>().ToList());
+        // First parameter - Path to fiels data | Second parameter - Controls from your form
+        FormSaver.LoadFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
     }
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
-        FormSaver.SaveFormSettings("settings.json", Controls.Cast<Control>().ToList());
+        // First parameter - Path to fiels data | Second parameter - Controls from your form
+        FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
     }

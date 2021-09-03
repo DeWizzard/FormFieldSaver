@@ -72,3 +72,7 @@ When loading / saving fields, an error may occur, it is better to handle it
        // an error occurred while working with controls, you need to prevent this.
        MessageBox.Show("Error load Form Settings", saveSettnigsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
    }
+## Dependencies
+* [Newtonsoft.Json 13.0.1](https://www.nuget.org/packages/Newtonsoft.Json/)
+## Builded on
+* .NET Framework 4.7.0

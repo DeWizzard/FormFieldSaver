@@ -13,13 +13,15 @@ Library for saving data on the form after closing the program
 * TrackBar
 * MaskedTextBox
 ## How to use
-1. Install the Library in your WinForms Project
+1. Install the Library via [Nuget](https://www.nuget.org/packages/FormFieldSaver.WinForms/) in your WinForms Project
+   ```
+   Install-Package FormFieldSaver.WinForms
 2. Add "**Load**" and "**FormClosing**" events to your Form<br>
 ![alt-image](https://i.imgur.com/EVasgjn.png)
 3. Connect Using
    ```csharp
    using FormFieldSaver;
-3. Call library methods in events
+4. Call library methods in events
     ```csharp
     private void Form1_Load(object sender, EventArgs e)
     {
@@ -73,6 +75,5 @@ When loading / saving fields, an error may occur, it is better to handle it
        MessageBox.Show("Error load Form Settings", saveSettnigsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
    }
 ## Dependencies
-* [Newtonsoft.Json 13.0.1](https://www.nuget.org/packages/Newtonsoft.Json/)
-## Builded on
 * .NET Framework 4.7.0
+* [Newtonsoft.Json 13.0.1](https://www.nuget.org/packages/Newtonsoft.Json/)

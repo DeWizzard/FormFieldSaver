@@ -1,4 +1,5 @@
 # FormFieldSaver
+![alt-image](https://i.imgur.com/BsU13P6.gif)<br>
 Library for saving data on the form after closing the program
 ## Supported Controls (System.Windows.Forms)
 * TextBox

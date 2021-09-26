@@ -40,6 +40,145 @@ namespace FormFieldSaver
             return false;
         }
 
+        private static IEnumerable<Control> GetControlsByName(Control form, string name, Type type)
+        {
+            var controls = form.Controls.Cast<Control>();
+
+            return controls.SelectMany(ctrl => GetControlsByType(ctrl, type))
+                    .Concat(controls)
+                    .Where(c => c.GetType() == type &&
+                    c.Name == name);
+        }
+
+        private static IEnumerable<Control> GetControlsByType(Control control, Type type, List<Type> ignoreControls = null, List<string> ignoreControlsByName = null)
+        {
+            ignoreControls = (ignoreControls is null) ? new List<Type>() : ignoreControls;
+            ignoreControlsByName = (ignoreControlsByName is null) ? new List<string>() : ignoreControlsByName;
+
+            var controls = control.Controls.Cast<Control>();
+
+            return controls.SelectMany(ctrl => GetControlsByType(ctrl, type, ignoreControls, ignoreControlsByName))
+                    .Concat(controls)
+                    .Where(c => c.GetType() == type &&
+                    !ignoreControls.Contains(c.GetType()) &&
+                    !ignoreControlsByName.Contains(c.Name));
+        }
+
+        public static SaveFormSettingsInfo SaveFormSettings(string pathToFile, Control form, List<Type> ignoreControls = null, List<string> ignoreControlsByName = null)
+        {
+            try
+            {
+                var json = new UIControls();
+                json.Initializate();
+
+                foreach (TextBox textBox in GetControlsByType(form, typeof(TextBox), ignoreControls, ignoreControlsByName))
+                    json.TextBoxes.Add(new UITextBox { ControlName = textBox.Name, Text = textBox.Text });
+
+                foreach (NumericUpDown numericUpDown in GetControlsByType(form, typeof(NumericUpDown), ignoreControls, ignoreControlsByName))
+                    json.NumericUpDowns.Add(new UINumericUpDown { ControlName = numericUpDown.Name, Value = numericUpDown.Value });
+
+                foreach (CheckBox checkBox in GetControlsByType(form, typeof(CheckBox), ignoreControls, ignoreControlsByName))
+                    json.CheckBoxes.Add(new UICheckBox { ControlName = checkBox.Name, Checked = checkBox.Checked });
+
+                foreach (ComboBox comboBox in GetControlsByType(form, typeof(ComboBox), ignoreControls, ignoreControlsByName))
+                    json.ComboBoxes.Add(new UIComboBox { ControlName = comboBox.Name, SelectedIndex = comboBox.SelectedIndex });
+
+                foreach (CheckedListBox checkedListBox in GetControlsByType(form, typeof(CheckedListBox), ignoreControls, ignoreControlsByName))
+                    json.CheckedListBoxes.Add(new UICheckedListBox { ControlName = checkedListBox.Name, CheckedIndexes = checkedListBox.CheckedIndices.Cast<int>().ToList() });
+
+                foreach (DateTimePicker dateTimePicker in GetControlsByType(form, typeof(DateTimePicker), ignoreControls, ignoreControlsByName))
+                    json.UIDateTimePickers.Add(new UIDateTimePicker { ControlName = dateTimePicker.Name, Value = dateTimePicker.Value });
+
+                foreach (DomainUpDown domainUpDown in GetControlsByType(form, typeof(DomainUpDown), ignoreControls, ignoreControlsByName))
+                    json.DomainUpDowns.Add(new UIDomainUpDown { ControlName = domainUpDown.Name, SelectedIndex = domainUpDown.SelectedIndex });
+
+                foreach (ListBox listBox in GetControlsByType(form, typeof(ListBox), ignoreControls, ignoreControlsByName))
+                    json.ListBoxes.Add(new UIListBox { ControlName = listBox.Name, SelectedIndex = listBox.SelectedIndex });
+
+                foreach (RichTextBox richTextBox in GetControlsByType(form, typeof(RichTextBox), ignoreControls, ignoreControlsByName))
+                    json.RichTextBoxes.Add(new UIRichTextBox { ControlName = richTextBox.Name, Text = richTextBox.Text });
+
+                foreach (TrackBar trackBar in GetControlsByType(form, typeof(TrackBar), ignoreControls, ignoreControlsByName))
+                    json.TrackBars.Add(new UITrackBar { ControlName = trackBar.Name, Value = trackBar.Value });
+
+                foreach (MaskedTextBox maskedTextBox in GetControlsByType(form, typeof(MaskedTextBox), ignoreControls, ignoreControlsByName))
+                    json.MaskedTextBoxes.Add(new UIMaskedTextBox { ControlName = maskedTextBox.Name, Text = maskedTextBox.Text });
+
+                var serializeJson = JsonConvert.SerializeObject(json, Formatting.Indented);
+                File.WriteAllText(pathToFile, serializeJson, Encoding.UTF8);
+
+                return new SaveFormSettingsInfo { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new SaveFormSettingsInfo { Success = false, Error = ex };
+            }
+        }
+
+        public static LoadFormSettingsInfo LoadFormSettings(string pathToFile, Control form)
+        {
+            try
+            {
+                if (!File.Exists(pathToFile))
+                    return new LoadFormSettingsInfo { Success = false, FileNotFound = true };
+
+                var formSettings = File.ReadAllText(pathToFile, Encoding.UTF8);
+                var uIControls = JsonConvert.DeserializeObject<UIControls>(formSettings);
+
+                foreach (var control in uIControls.TextBoxes ?? Enumerable.Empty<UITextBox>())
+                    foreach (TextBox textBox in GetControlsByName(form, control.ControlName, typeof(TextBox)))
+                        textBox.Text = control.Text;
+
+                foreach (var control in uIControls.NumericUpDowns ?? Enumerable.Empty<UINumericUpDown>())
+                    foreach (NumericUpDown numericUpDown in GetControlsByName(form, control.ControlName, typeof(NumericUpDown)))
+                        numericUpDown.Value = control.Value;
+
+                foreach (var control in uIControls.CheckBoxes ?? Enumerable.Empty<UICheckBox>())
+                    foreach (CheckBox checkBox in GetControlsByName(form, control.ControlName, typeof(CheckBox)))
+                        checkBox.Checked = control.Checked;
+
+                foreach (var control in uIControls.ComboBoxes ?? Enumerable.Empty<UIComboBox>())
+                    foreach (ComboBox comboBox in GetControlsByName(form, control.ControlName, typeof(ComboBox)))
+                        comboBox.SelectedIndex = control.SelectedIndex;
+
+                foreach (var control in uIControls.CheckedListBoxes ?? Enumerable.Empty<UICheckedListBox>())
+                    foreach (CheckedListBox checkedListBox in GetControlsByName(form, control.ControlName, typeof(CheckedListBox)))
+                        foreach (var checkedIndex in control.CheckedIndexes)
+                            checkedListBox.SetItemChecked(checkedIndex, true);
+
+                foreach (var control in uIControls.UIDateTimePickers ?? Enumerable.Empty<UIDateTimePicker>())
+                    foreach (DateTimePicker dateTimePicker in GetControlsByName(form, control.ControlName, typeof(DateTimePicker)))
+                        dateTimePicker.Value = control.Value;
+
+                foreach (var control in uIControls.DomainUpDowns ?? Enumerable.Empty<UIDomainUpDown>())
+                    foreach (DomainUpDown domainUpDown in GetControlsByName(form, control.ControlName, typeof(DomainUpDown)))
+                        domainUpDown.SelectedIndex = control.SelectedIndex;
+
+                foreach (var control in uIControls.ListBoxes ?? Enumerable.Empty<UIListBox>())
+                    foreach (ListBox listBox in GetControlsByName(form, control.ControlName, typeof(ListBox)))
+                        listBox.SelectedIndex = control.SelectedIndex;
+
+                foreach (var control in uIControls.RichTextBoxes ?? Enumerable.Empty<UIRichTextBox>())
+                    foreach (RichTextBox richTextBox in GetControlsByName(form, control.ControlName, typeof(RichTextBox)))
+                        richTextBox.Text = control.Text;
+
+                foreach (var control in uIControls.TrackBars ?? Enumerable.Empty<UITrackBar>())
+                    foreach (TrackBar trackBar in GetControlsByName(form, control.ControlName, typeof(TrackBar)))
+                        trackBar.Value = control.Value;
+
+                foreach (var control in uIControls.MaskedTextBoxes ?? Enumerable.Empty<UIMaskedTextBox>())
+                    foreach (MaskedTextBox maskedTextBox in GetControlsByName(form, control.ControlName, typeof(MaskedTextBox)))
+                        maskedTextBox.Text = control.Text;
+
+                return new LoadFormSettingsInfo { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new LoadFormSettingsInfo { Success = false, Error = ex };
+            }
+        }
+
+        [Obsolete("This method is deprecated and does not work correctly, use a different method overload, more details: https://github.com/DeWizzard/FormFieldSaver")]
         public static SaveFormSettingsInfo SaveFormSettings(string pathToFile, List<Control> formControls, List<Type> ignoreControls = null, List<string> ignoreControlsByName = null)
         {
             try
@@ -97,6 +236,7 @@ namespace FormFieldSaver
             }
         }
 
+        [Obsolete("This method is deprecated and does not work correctly, use a different method overload, more details: https://github.com/DeWizzard/FormFieldSaver")]
         public static LoadFormSettingsInfo LoadFormSettings(string pathToFile, List<Control> formControls)
         {
             try

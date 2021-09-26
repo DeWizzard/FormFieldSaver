@@ -27,13 +27,13 @@ Library for saving data on the form after closing the program
     private void Form1_Load(object sender, EventArgs e)
     {
         // First parameter - Path to fiels data | Second parameter - Controls from your form
-        FormSaver.LoadFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+        FormSaver.LoadFormSettings("SavedFields.json", this);
     }
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
         // First parameter - Path to fiels data | Second parameter - Controls from your form
-        FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+        FormSaver.SaveFormSettings("SavedFields.json", this);
     }
 ## Ignoring some Сontrols
 We have the ability to ignore some controls, this can be done by its type, or by its name
@@ -44,7 +44,7 @@ We have the ability to ignore some controls, this can be done by its type, or by
    ingnoreControls.Add(typeof(TextBox));
 
    // Now controls with the "CheckBox" and "TextBox" types will be ignored and not saved
-   FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList(), ingnoreControls);
+   FormSaver.SaveFormSettings("SavedFields.json", this, ingnoreControls);
 2. Ignoring by Name 
    ```csharp
    var ignoreControlsByName = new List<string>();
@@ -52,12 +52,12 @@ We have the ability to ignore some controls, this can be done by its type, or by
    ignoreControlsByName.Add("textBox1");
 
    // Now controls named "checkBox1" and "textBox1" will be ignored and not saved.
-   FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList(), null, ignoreControlsByName);
+   FormSaver.SaveFormSettings("SavedFields.json", thos, null, ignoreControlsByName);
 ## Error Handling
 When loading / saving fields, an error may occur, it is better to handle it
 * When loading settings
    ```csharp
-   var loadSettingsResult = FormSaver.LoadFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+   var loadSettingsResult = FormSaver.LoadFormSettings("SavedFields.json", this);
    if(!loadSettingsResult.Success)
    {
        // Perhaps the program is launched for the first time, and it does not have a save file
@@ -69,7 +69,7 @@ When loading / saving fields, an error may occur, it is better to handle it
    }
 * When save settings
    ```csharp
-   var saveSettnigsResult = FormSaver.SaveFormSettings("SavedFields.json", Controls.Cast<Control>().ToList());
+   var saveSettnigsResult = FormSaver.SaveFormSettings("SavedFields.json", this);
    if (!saveSettnigsResult.Success)
    {
        // an error occurred while working with controls, you need to prevent this.

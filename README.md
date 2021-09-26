@@ -52,7 +52,7 @@ We have the ability to ignore some controls, this can be done by its type, or by
    ignoreControlsByName.Add("textBox1");
 
    // Now controls named "checkBox1" and "textBox1" will be ignored and not saved.
-   FormSaver.SaveFormSettings("SavedFields.json", thos, null, ignoreControlsByName);
+   FormSaver.SaveFormSettings("SavedFields.json", this, null, ignoreControlsByName);
 ## Error Handling
 When loading / saving fields, an error may occur, it is better to handle it
 * When loading settings

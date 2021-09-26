@@ -73,7 +73,7 @@ When loading / saving fields, an error may occur, it is better to handle it
    if (!saveSettnigsResult.Success)
    {
        // an error occurred while working with controls, you need to prevent this.
-       MessageBox.Show("Error load Form Settings", saveSettnigsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+       MessageBox.Show("Error save Form Settings", saveSettnigsResult.Error.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
    }
 ## Dependencies
 * .NET Framework 4.7.0
